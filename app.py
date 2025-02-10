@@ -13,7 +13,7 @@ from models import LlmModels, SearchResult
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_SEARCH_API_KEY")
 GOOGLE_CX = os.getenv("GOOGLE_SEARCH_CX")
-
+BASE_URL = "https://api.deepinfra.com/v1/openai"
 get_llm = lambda: ChatOpenAI(
         model=LlmModels.DEEPSEEK_V3.value,
         temperature=0,

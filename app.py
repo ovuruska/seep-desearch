@@ -71,6 +71,7 @@ Now, generate a Python list following these rules for the given text:
 ##########################################
 # Agent 1: Search Agent                  #
 ##########################################
+# @cl.step(type="tool")
 def search_agent(query: str) -> List[SearchResult]:
     """
     Performs a web search for the given query using the Google Custom Search API.
@@ -108,6 +109,7 @@ def search_agent(query: str) -> List[SearchResult]:
 ##########################################
 # Helper Function: Fetch Content         #
 ##########################################
+# @cl.step(type="tool")
 def fetch_content(url: str) -> str:
     """
     Fetches the HTML content from a URL and extracts text using BeautifulSoup.
@@ -129,6 +131,7 @@ def fetch_content(url: str) -> str:
 ##########################################
 # Agent 2: Result Extraction & Relevancy Filter
 ##########################################
+# @cl.step(type="tool")
 def result_extraction_and_filter_agent(search_results: List[SearchResult], query: str) -> List[SearchResult]:
     """
     Parses the raw search results and, for each result, fetches the content from its URL.
@@ -161,7 +164,7 @@ def result_extraction_and_filter_agent(search_results: List[SearchResult], query
 
     return results
 
-
+# @cl.step(type="tool")
 async def report_generation_agent(query: str, results: List[SearchResult]):
     """
     Generates a comprehensive Markdown report (styled like a Wikipedia article)
@@ -217,32 +220,36 @@ async def handle_message(chainlit_message: chainlit.message.Message):
         "Step 1: Received the user's query.",
         "Step 2: Running Search Planner..."
     ]
-    for step in steps:
-        await cl.Message(content=step).send()
+    # for step in steps:
+    #     await cl.Message(content=step).send()
 
     # Agent 0: Search Planner
     message = chainlit_message.content
-    topics = search_planner(message)
-    await cl.Message(content=f"Search Planner Output: {topics}").send()
-    all_results = []
-    # Agent 1: Search Agent (for each topic)
-    for topic in topics:
-        await cl.Message(content=f"Searching for topic: {topic}").send()
-        search_results = search_agent(topic)
-        all_results.extend(search_results)
-
-    await cl.Message(content="Web search completed for all topics.").send()
-
-    # Agent 2: Result Extraction & Relevancy Filter
-    await cl.Message(content="Extracting and filtering search results...").send()
-    filtered_results = result_extraction_and_filter_agent(all_results, message)
-    await cl.Message(content=f"{len(filtered_results)} result(s) after filtering.").send()
-
-    # Agent 3: Report Generation
-    await cl.Message(content="Generating report...").send()
     report_msg = cl.Message(content="")
-    async for chunk in report_generation_agent(message, filtered_results):
-        await report_msg.stream_token(chunk.content)
+    async with cl.Step(name="Seep Desearch") as parent_step:
+        topics = search_planner(message)
+        async with cl.Step(name="Search Agent"):
+            parent_step.name = "Search Agent"
+            await parent_step.update()
+            all_results = []
+            # Agent 1: Search Agent (for each topic)
+            for topic in topics:
+                search_results = search_agent(topic)
+                all_results.extend(search_results)
+                
+        async with cl.Step(name="Result Extraction & Relevancy Filter"):
+            parent_step.name = "Result Extraction & Relevancy Filter"
+            await parent_step.update()
+            filtered_results = result_extraction_and_filter_agent(all_results, message)
+            
+
+        async with cl.Step(name="Report Generation"):
+            parent_step.name = "Report Generation"
+            await parent_step.update()
+            async for chunk in report_generation_agent(message, filtered_results):
+                await report_msg.stream_token(chunk.content)
+        parent_step.name = "Seep Desearch – Completed!"
+        await parent_step.update()
     await report_msg.send()
 
 

@@ -1,0 +1,51 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment dosyaları
+venv/
+ENV/
+env/
+
+# Dotenv dosyaları (gizli bilgileri içerir)
+.env
+
+# Dağıtım / Paketleme dosyaları
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+
+# PyInstaller
+*.spec
+
+# Test / Coverage çıktıları
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints
+
+# IDE ve Editör ayarları
+.idea/
+.vscode/
+.chainlit/

@@ -1,0 +1,10 @@
+openai
+python-dotenv
+chainlit
+pydantic
+beautifulsoup4
+requests
+langchain
+langchain-community
+duckduckgo-search
+langchain-openai

@@ -16,8 +16,8 @@ GOOGLE_CX = os.getenv("GOOGLE_SEARCH_CX")
 BASE_URL = "https://api.deepinfra.com/v1/openai"
 get_llm = lambda: ChatOpenAI(
         model=LlmModels.DEEPSEEK_V3.value,
-        temperature=0,
-        base_url=os.getenv("BASE_URL"),
+        temperature=0.23,
+        base_url=BASE_URL,
         api_key=os.getenv("DEEPINFRA_API_KEY"),
         timeout=None
     )
